@@ -6,7 +6,9 @@ As seen in [jacobmarshall/pokevision-cli](https://github.com/jacobmarshall/pokev
 
 ## Screenshot
 
-![Screenshot](./screenshot.png)
+![Toast](./screenshot-toast.png)
+
+![Action centre](./screenshot-action-centre.png)
 
 ## Example
 
