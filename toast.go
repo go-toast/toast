@@ -90,8 +90,6 @@ func invokeTemporaryScript(content string) (error) {
     if err != nil {
         return err
     }
-    log.Println(file)
-    log.Println(content)
     if err = exec.Command("PowerShell", "-File", file).Run(); err != nil {
         return err
     }
