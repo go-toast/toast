@@ -10,7 +10,7 @@ As seen in [jacobmarshall/pokevision-cli](https://github.com/jacobmarshall/pokev
 
 ## Example
 
-```
+```go
 package main
 
 import (
