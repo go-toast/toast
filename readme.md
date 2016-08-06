@@ -27,8 +27,8 @@ func main() {
         Message: "Some message about how important something is...",
         Icon: "go.png",
         Actions: []toast.Action{
-            {"protocol", "I'm a button"},
-            {"protocol", "Me too!"},
+            {"protocol", "I'm a button", ""},
+            {"protocol", "Me too!", ""},
         },
     }
     err := notification.Push()
