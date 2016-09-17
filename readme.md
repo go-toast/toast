@@ -4,8 +4,6 @@ A go package for Windows 10 toast notifications.
 
 As seen in [jacobmarshall/pokevision-cli](https://github.com/jacobmarshall/pokevision-cli).
 
-## Screenshot
-
 ![Toast](./screenshot-toast.png)
 
 ![Action centre](./screenshot-action-centre.png)
@@ -16,8 +14,9 @@ As seen in [jacobmarshall/pokevision-cli](https://github.com/jacobmarshall/pokev
 package main
 
 import (
-    toast "github.com/jacobmarshall/go-toast"
     "log"
+
+    "gopkg.in/toast.v1"
 )
 
 func main() {
