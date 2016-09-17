@@ -55,20 +55,39 @@ $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
 }
 
 type Notification struct {
+	// The name of your app. This value shows up in Windows 10's Action Centre, so make it
+	// something readable for your users. It can contain spaces, however special characters
+	// (eg. é) are not supported.
 	AppID   string
+
+	// The main title/heading for the toast notification.
 	Title   string
+
+	// The single/multi line message to display for the toast notification.
 	Message string
+
+	// An optional path to an image on the OS to display to the left of the title & message.
 	Icon    string
+
+	// Optional action buttons to display below the notification title & message.
 	Actions []Action
 }
 
+// Defines an actionable button.
+// See https://msdn.microsoft.com/en-us/windows/uwp/controls-and-patterns/tiles-and-notifications-adaptive-interactive-toasts for more info.
+//
+// Only protocol type action buttons are actually useful, as there's no way of receiving feedback from the
+// user's choice. Examples of protocol type action buttons include: "bingmaps:?q=sushi" to open up Windows 10's
+// maps app with a pre-populated search field set to "sushi".
+//
+//     toast.Action{"protocol", "Open Maps", "bingmaps:?q=sushi"}
 type Action struct {
 	Type      string
 	Label     string
 	Arguments string
 }
 
-func (n *Notification) BuildXML() (string, error) {
+func (n *Notification) buildXML() (string, error) {
 	var out bytes.Buffer
 	err := toastTemplate.Execute(&out, n)
 	if err != nil {
@@ -77,8 +96,27 @@ func (n *Notification) BuildXML() (string, error) {
 	return out.String(), nil
 }
 
+// Builds the Windows PowerShell script & invokes it, causing the toast to display.
+//
+// Note: Running the PowerShell script is by far the slowest process here, and can take a few
+// seconds in some cases.
+//
+//     notification := toast.Notification{
+//         AppID: "Example App",
+//         Title: "My notification",
+//         Message: "Some message about how important something is...",
+//         Icon: "go.png",
+//         Actions: []toast.Action{
+//             {"protocol", "I'm a button", ""},
+//             {"protocol", "Me too!", ""},
+//         },
+//     }
+//     err := notification.Push()
+//     if err != nil {
+//         log.Fatalln(err)
+//     }
 func (n *Notification) Push() error {
-	xml, _ := n.BuildXML()
+	xml, _ := n.buildXML()
 	return invokeTemporaryScript(xml)
 }
 
