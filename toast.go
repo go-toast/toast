@@ -1,4 +1,4 @@
-package go_toast
+package toast
 
 import (
 	"bytes"
