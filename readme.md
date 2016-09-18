@@ -4,9 +4,23 @@ A go package for Windows 10 toast notifications.
 
 As seen in [jacobmarshall/pokevision-cli](https://github.com/jacobmarshall/pokevision-cli).
 
-![Toast](./screenshot-toast.png)
+## CLI
 
-![Action centre](./screenshot-action-centre.png)
+As well as using go-toast within your Go projects, you can also utilise the CLI - for any of your projects.
+
+Download [64bit](https://go-toast-downloads.s3.amazonaws.com/v1/toast64.exe) or [32bit](https://go-toast-downloads.s3.amazonaws.com/v1/toast32.exe)
+
+```cmd
+C:\Users\Example\Downloads\toast64.exe \
+  --app-id "Example App" \
+  --title "Hello World" \
+  --message "Lorem ipsum dolor sit amet, consectetur adipiscing elit." \
+  --icon "C:\Users\Example\Pictures\icon.png" \
+  --action "Open maps" --action-arg "bingmaps:?q=sushi"
+  --action "Open browser" --action-arg "http://..."
+```
+
+![CLI](./screenshot-cli.png)
 
 ## Example
 
@@ -36,3 +50,9 @@ func main() {
     }
 }
 ```
+
+## Screenshots
+
+![Toast](./screenshot-toast.png)
+
+![Action centre](./screenshot-action-centre.png)
