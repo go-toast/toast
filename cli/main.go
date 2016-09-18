@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"gopkg.in/toast.v1"
+	"github.com/go-toast/toast"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -39,16 +39,25 @@ func main() {
 			Name: "icon, i",
 			Usage: "the app icon path (displays to the left of the toast)",
 		},
+		cli.StringFlag{
+			Name: "activation-type",
+			Value: "protocol",
+			Usage: "the type of action to invoke when the user clicks the toast",
+		},
+		cli.StringFlag{
+			Name: "activation-arg",
+			Usage: "the activation argument",
+		},
 		cli.StringSliceFlag{
-			Name: "action, a",
+			Name: "action",
 			Usage: "optional action button",
 		},
 		cli.StringSliceFlag{
-			Name: "action-type, at",
+			Name: "action-type",
 			Usage: "the type of action button",
 		},
 		cli.StringSliceFlag{
-			Name: "action-arg, aa",
+			Name: "action-arg",
 			Usage: "the action button argument",
 		},
 	}
@@ -58,6 +67,8 @@ func main() {
 		title := c.String("title")
 		message := c.String("message")
 		icon := c.String("icon")
+		activationType := c.String("activation-type")
+		activationArg := c.String("activation-arg")
 
 		var actions []toast.Action
 		actionTexts := c.StringSlice("action")
@@ -81,11 +92,13 @@ func main() {
 		}
 
 		notification := &toast.Notification{
-			AppID:   appID,
-			Title:   title,
-			Message: message,
-			Icon:    icon,
-			Actions: actions,
+			AppID:               appID,
+			Title:               title,
+			Message:             message,
+			Icon:                icon,
+			Actions:             actions,
+			ActivationType:      activationType,
+			ActivationArguments: activationArg,
 		}
 
 		return notification.Push()

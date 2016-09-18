@@ -20,10 +20,10 @@ func init() {
 [Windows.UI.Notifications.ToastNotification, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
 [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
 
-$APP_ID = '{{if .AppID}}{{.AppID}}{{else}}io.github.go-toast.toast{{end}}'
+$APP_ID = '{{if .AppID}}{{.AppID}}{{else}}Windows App{{end}}'
 
 $template = @"
-<toast>
+<toast activationType="{{.ActivationType}}" launch="{{.ActivationArguments}}">
     <visual>
         <binding template="ToastGeneric">
             {{if .Icon}}
@@ -58,19 +58,25 @@ type Notification struct {
 	// The name of your app. This value shows up in Windows 10's Action Centre, so make it
 	// something readable for your users. It can contain spaces, however special characters
 	// (eg. é) are not supported.
-	AppID   string
+	AppID           string
 
 	// The main title/heading for the toast notification.
-	Title   string
+	Title           string
 
 	// The single/multi line message to display for the toast notification.
-	Message string
+	Message         string
 
 	// An optional path to an image on the OS to display to the left of the title & message.
-	Icon    string
+	Icon            string
+
+	// The type of notification level action (like toast.Action)
+	ActivationType      string
+
+	// The activation/action arguments (invoked when the user clicks the notification)
+	ActivationArguments string
 
 	// Optional action buttons to display below the notification title & message.
-	Actions []Action
+	Actions         []Action
 }
 
 // Defines an actionable button.
