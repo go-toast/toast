@@ -16,7 +16,8 @@ C:\Users\Example\Downloads\toast64.exe \
   --title "Hello World" \
   --message "Lorem ipsum dolor sit amet, consectetur adipiscing elit." \
   --icon "C:\Users\Example\Pictures\icon.png" \
-  --action "Open maps" --action-arg "bingmaps:?q=sushi"
+  --activation-arg "https://google.com" \
+  --action "Open maps" --action-arg "bingmaps:?q=sushi" \
   --action "Open browser" --action-arg "http://..."
 ```
 
