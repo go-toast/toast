@@ -20,7 +20,7 @@ func init() {
 [Windows.UI.Notifications.ToastNotification, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
 [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
 
-$APP_ID = '{{if .AppID}}{{.AppID}}{{else}}io.github.jacobmarshall.go-toast{{end}}'
+$APP_ID = '{{if .AppID}}{{.AppID}}{{else}}io.github.go-toast.toast{{end}}'
 
 $template = @"
 <toast>
