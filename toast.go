@@ -30,10 +30,10 @@ $template = @"
             <image placement="appLogoOverride" src="{{.Icon}}" />
             {{end}}
             {{if .Title}}
-            <text>{{.Title}}</text>
+            <text><![CDATA[{{.Title}}]]></text>
             {{end}}
             {{if .Message}}
-            <text>{{.Message}}</text>
+            <text><![CDATA[{{.Message}}]]></text>
             {{end}}
         </binding>
     </visual>
