@@ -124,7 +124,7 @@ func (n *Notification) Push() error {
 		// Create a key for the AppID's persistence setting.
 		k, _, _ := registry.CreateKey(registry.CURRENT_USER, `SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\`+n.AppID, registry.ALL_ACCESS)
 		// Set the correct registry value.
-		k.SetDWordValue("ShowInActionCenter", dwval)
+		k.SetDWordValue("ShowInActionCenter", uint32(1))
 		k.Close()
 	} else {
 		registry.DeleteKey(registry.CURRENT_USER, `SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\`+n.AppID, registry.ALL_ACCESS)
