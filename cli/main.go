@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"time"
+	"log"
 
 	"gopkg.in/toast.v1"
 	"gopkg.in/urfave/cli.v1"
@@ -101,7 +102,11 @@ func main() {
 			ActivationArguments: activationArg,
 		}
 
-		return notification.Push()
+		if err := notification.Push(); err != nil {
+			log.Fatalln(err)
+		}
+
+		return nil
 	}
 
 	app.Run(os.Args)
