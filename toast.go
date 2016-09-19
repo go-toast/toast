@@ -120,13 +120,15 @@ func (n *Notification) buildXML() (string, error) {
 //         log.Fatalln(err)
 //     }
 func (n *Notification) Push() error {
-	// Create a key for the AppID's persistence setting.
-	k, _, _ := registry.CreateKey(registry.CURRENT_USER, `SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\`+n.AppID, registry.ALL_ACCESS)
-	// Set the correct registry value.
-	dwval := uint32(0)
-	if n.Persist {dwval = 1}
-	k.SetDWordValue("ShowInActionCenter", dwval)
-	k.Close()
+	if n.Persist {
+		// Create a key for the AppID's persistence setting.
+		k, _, _ := registry.CreateKey(registry.CURRENT_USER, `SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\`+n.AppID, registry.ALL_ACCESS)
+		// Set the correct registry value.
+		k.SetDWordValue("ShowInActionCenter", dwval)
+		k.Close()
+	} else {
+		registry.DeleteKey(registry.CURRENT_USER, `SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\`+n.AppID, registry.ALL_ACCESS)
+	}
 
 	xml, _ := n.buildXML()
 	return invokeTemporaryScript(xml)
