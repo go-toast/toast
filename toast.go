@@ -127,7 +127,7 @@ func (n *Notification) Push() error {
 		k.SetDWordValue("ShowInActionCenter", uint32(1))
 		k.Close()
 	} else {
-		registry.DeleteKey(registry.CURRENT_USER, `SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\`+n.AppID, registry.ALL_ACCESS)
+		registry.DeleteKey(registry.CURRENT_USER, `SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\`+n.AppID)
 	}
 
 	xml, _ := n.buildXML()
