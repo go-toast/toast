@@ -61,6 +61,20 @@ func main() {
 			Name: "action-arg",
 			Usage: "the action button argument",
 		},
+		cli.StringFlag{
+			Name: "audio",
+			Value: "silent",
+			Usage: "which kind of audio should be played",
+		},
+		cli.BoolFlag{
+			Name: "loop",
+			Usage: "whether to loop the audio",
+		},
+		cli.StringFlag{
+			Name: "duration",
+			Value: "short",
+			Usage: "how long the toast should display for",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
@@ -70,6 +84,9 @@ func main() {
 		icon := c.String("icon")
 		activationType := c.String("activation-type")
 		activationArg := c.String("activation-arg")
+		audio, _ := toast.Audio(c.String("audio"))
+		duration, _ := toast.Duration(c.String("duration"))
+		loop := c.Bool("loop")
 
 		var actions []toast.Action
 		actionTexts := c.StringSlice("action")
@@ -100,6 +117,9 @@ func main() {
 			Actions:             actions,
 			ActivationType:      activationType,
 			ActivationArguments: activationArg,
+			Audio:               audio,
+			Loop:                loop,
+			Duration:            duration,
 		}
 
 		if err := notification.Push(); err != nil {
