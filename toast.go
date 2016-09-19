@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	"github.com/nu7hatch/gouuid"
+	"golang.org/x/sys/windows/registry"
 )
 
 var toastTemplate *template.Template
@@ -71,6 +72,9 @@ type Notification struct {
 
 	// Optional action buttons to display below the notification title & message.
 	Actions []Action
+
+	// Should the notification persist in Action Center?
+	Persist bool
 }
 
 // Defines an actionable button.
@@ -116,6 +120,16 @@ func (n *Notification) buildXML() (string, error) {
 //         log.Fatalln(err)
 //     }
 func (n *Notification) Push() error {
+	if n.Persist {
+		// Create a key for the AppID's persistence setting.
+		k, _, _ := registry.CreateKey(registry.CURRENT_USER, `SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\`+n.AppID, registry.ALL_ACCESS)
+		// Set the correct registry value.
+		k.SetDWordValue("ShowInActionCenter", uint32(1))
+		k.Close()
+	} else {
+		registry.DeleteKey(registry.CURRENT_USER, `SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\`+n.AppID)
+	}
+
 	xml, _ := n.buildXML()
 	return invokeTemporaryScript(xml)
 }
