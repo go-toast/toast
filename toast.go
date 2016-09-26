@@ -104,6 +104,44 @@ $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
     `)
 }
 
+// Notification
+//
+// The toast notification data. The following fields are strongly recommended;
+//   - AppID
+//   - Title
+//
+// If no toastAudio is provided, then the toast notification will be silent.
+// You can set the toast to have a default audio by setting "Audio" to "toast.Default", or if your go app takes
+// user-provided input for audio, call the "toast.Audio(name)" func.
+//
+// The AppID is shown beneath the toast message (in certain cases), and above the notification within the Action
+// Center - and is used to group your notifications together. It is recommended that you provide a "pretty"
+// name for your app, and not something like "com.example.MyApp".
+//
+// If no Title is provided, but a Message is, the message will display as the toast notification's title -
+// which is a slightly different font style (heavier).
+//
+// The Icon should be an absolute path to the icon (as the toast is invoked from a temporary path on the user's
+// system, not the working directory).
+//
+// If you would like the toast to call an external process/open a webpage, then you can set ActivationArguments
+// to the uri you would like to trigger when the toast is clicked. For example: "https://google.com" would open
+// the Google homepage when the user clicks the toast notification.
+// By default, clicking the toast just hides/dismisses it.
+//
+// The following would show a notification to the user letting them know they received an email, and opens
+// gmail.com when they click the notification. It also makes the Windows 10 "mail" sound effect.
+//
+//     toast := toast.Notification{
+//         AppID:               "Google Mail",
+//         Title:               email.Subject,
+//         Message:             email.Preview,
+//         Icon:                "C:/Program Files/Google Mail/icons/logo.png",
+//         ActivationArguments: "https://gmail.com",
+//         Audio:               toast.Mail,
+//     }
+//
+//     err := toast.Push()
 type Notification struct {
 	// The name of your app. This value shows up in Windows 10's Action Centre, so make it
 	// something readable for your users. It can contain spaces, however special characters
@@ -138,6 +176,8 @@ type Notification struct {
 	Duration toastDuration
 }
 
+// Action
+//
 // Defines an actionable button.
 // See https://msdn.microsoft.com/en-us/windows/uwp/controls-and-patterns/tiles-and-notifications-adaptive-interactive-toasts for more info.
 //
@@ -185,6 +225,23 @@ func (n *Notification) Push() error {
 	return invokeTemporaryScript(xml)
 }
 
+// Returns a toastAudio given a user-provided input (useful for cli apps).
+//
+// If the "name" doesn't match, then the default toastAudio is returned, along with ErrorInvalidAudio.
+//
+// The following names are valid;
+//   - default
+//   - im
+//   - mail
+//   - reminder
+//   - sms
+//   - loopingalarm
+//   - loopimgalarm[2-10]
+//   - loopingcall
+//   - loopingcall[2-10]
+//   - silent
+//
+// Handle the error appropriately according to how your app should work.
 func Audio(name string) (toastAudio, error) {
 	switch strings.ToLower(name) {
 	case "default":
@@ -244,6 +301,17 @@ func Audio(name string) (toastAudio, error) {
 	}
 }
 
+// Returns a toastDuration given a user-provided input (useful for cli apps).
+//
+// The default duration is short. If the "name" doesn't match, then the default toastDuration is returned,
+// along with ErrorInvalidDuration. Most of the time "short" is the most appropriate for a toast notification,
+// and Microsoft recommend not using "long", but it can be useful for important dialogs or looping sound toasts.
+//
+// The following names are valid;
+//   - short
+//   - long
+//
+// Handle the error appropriately according to how your app should work.
 func Duration(name string) (toastDuration, error) {
 	switch strings.ToLower(name) {
 	case "short":
