@@ -48,7 +48,7 @@ const (
 	LoopingCall8              = "ms-winsoundevent:Notification.Looping.Call8"
 	LoopingCall9              = "ms-winsoundevent:Notification.Looping.Call9"
 	LoopingCall10             = "ms-winsoundevent:Notification.Looping.Call10"
-	Silent                    = ""
+	Silent                    = "silent"
 )
 
 type toastDuration string
@@ -82,7 +82,7 @@ $template = @"
             {{end}}
         </binding>
     </visual>
-    {{if .Audio}}
+    {{if ne .Audio "silent"}}
 	<audio src="{{.Audio}}" loop="{{.Loop}}" />
 	{{else}}
 	<audio silent="true" />
@@ -192,6 +192,18 @@ type Action struct {
 	Arguments string
 }
 
+func (n *Notification) applyDefaults() {
+	if n.ActivationType == "" {
+		n.ActivationType = "protocol"
+	}
+	if n.Duration == "" {
+		n.Duration = Short
+	}
+	if n.Audio == "" {
+		n.Audio = Default
+	}
+}
+
 func (n *Notification) buildXML() (string, error) {
 	var out bytes.Buffer
 	err := toastTemplate.Execute(&out, n)
@@ -221,7 +233,11 @@ func (n *Notification) buildXML() (string, error) {
 //         log.Fatalln(err)
 //     }
 func (n *Notification) Push() error {
-	xml, _ := n.buildXML()
+	n.applyDefaults()
+	xml, err := n.buildXML()
+	if err != nil {
+		return err
+	}
 	return invokeTemporaryScript(xml)
 }
 
