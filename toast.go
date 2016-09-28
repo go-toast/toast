@@ -193,7 +193,7 @@ type Action struct {
 }
 
 func (n *Notification) applyDefaults() {
-	if n.ActivationType == "" {
+	if n.ActivationType == "" && n.Actions != nil {
 		n.ActivationType = "protocol"
 	}
 	if n.Duration == "" {
