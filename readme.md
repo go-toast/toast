@@ -41,7 +41,7 @@ func main() {
         AppID: "Example App",
         Title: "My notification",
         Message: "Some message about how important something is...",
-        Icon: "go.png",
+        Icon: "go.png", // This file must exist (remove this line if it doesn't)
         Actions: []toast.Action{
             {"protocol", "I'm a button", ""},
             {"protocol", "Me too!", ""},
