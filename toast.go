@@ -344,7 +344,9 @@ func invokeTemporaryScript(content string) error {
 	id, _ := uuid.NewV4()
 	file := filepath.Join(os.TempDir(), id.String()+".ps1")
 	defer os.Remove(file)
-	err := ioutil.WriteFile(file, []byte(content), 0600)
+	bomUtf8 := []byte{0xEF, 0xBB, 0xBF}
+	out := append(bomUtf8, []byte(content)...)
+	err := ioutil.WriteFile(file, out, 0600)
 	if err != nil {
 		return err
 	}
