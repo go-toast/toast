@@ -2,66 +2,83 @@ package toast
 
 import (
 	"bytes"
-	"errors"
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"strings"
-	"text/template"
-
-	"github.com/nu7hatch/gouuid"
 	"syscall"
+	"text/template"
 )
 
-var toastTemplate *template.Template
+var tmpl *template.Template
 
-var (
-	ErrorInvalidAudio    error = errors.New("toast: invalid audio")
-	ErrorInvalidDuration       = errors.New("toast: invalid duration")
-)
-
-type toastAudio string
+type Audio string
+type Duration string
 
 const (
-	Default        toastAudio = "ms-winsoundevent:Notification.Default"
-	IM                        = "ms-winsoundevent:Notification.IM"
-	Mail                      = "ms-winsoundevent:Notification.Mail"
-	Reminder                  = "ms-winsoundevent:Notification.Reminder"
-	SMS                       = "ms-winsoundevent:Notification.SMS"
-	LoopingAlarm              = "ms-winsoundevent:Notification.Looping.Alarm"
-	LoopingAlarm2             = "ms-winsoundevent:Notification.Looping.Alarm2"
-	LoopingAlarm3             = "ms-winsoundevent:Notification.Looping.Alarm3"
-	LoopingAlarm4             = "ms-winsoundevent:Notification.Looping.Alarm4"
-	LoopingAlarm5             = "ms-winsoundevent:Notification.Looping.Alarm5"
-	LoopingAlarm6             = "ms-winsoundevent:Notification.Looping.Alarm6"
-	LoopingAlarm7             = "ms-winsoundevent:Notification.Looping.Alarm7"
-	LoopingAlarm8             = "ms-winsoundevent:Notification.Looping.Alarm8"
-	LoopingAlarm9             = "ms-winsoundevent:Notification.Looping.Alarm9"
-	LoopingAlarm10            = "ms-winsoundevent:Notification.Looping.Alarm10"
-	LoopingCall               = "ms-winsoundevent:Notification.Looping.Call"
-	LoopingCall2              = "ms-winsoundevent:Notification.Looping.Call2"
-	LoopingCall3              = "ms-winsoundevent:Notification.Looping.Call3"
-	LoopingCall4              = "ms-winsoundevent:Notification.Looping.Call4"
-	LoopingCall5              = "ms-winsoundevent:Notification.Looping.Call5"
-	LoopingCall6              = "ms-winsoundevent:Notification.Looping.Call6"
-	LoopingCall7              = "ms-winsoundevent:Notification.Looping.Call7"
-	LoopingCall8              = "ms-winsoundevent:Notification.Looping.Call8"
-	LoopingCall9              = "ms-winsoundevent:Notification.Looping.Call9"
-	LoopingCall10             = "ms-winsoundevent:Notification.Looping.Call10"
-	Silent                    = "silent"
+	Default        Audio = "ms-winsoundevent:Notification.Default"
+	IM             Audio = "ms-winsoundevent:Notification.IM"
+	Mail           Audio = "ms-winsoundevent:Notification.Mail"
+	Reminder       Audio = "ms-winsoundevent:Notification.Reminder"
+	SMS            Audio = "ms-winsoundevent:Notification.SMS"
+	LoopingAlarm   Audio = "ms-winsoundevent:Notification.Looping.Alarm"
+	LoopingAlarm2  Audio = "ms-winsoundevent:Notification.Looping.Alarm2"
+	LoopingAlarm3  Audio = "ms-winsoundevent:Notification.Looping.Alarm3"
+	LoopingAlarm4  Audio = "ms-winsoundevent:Notification.Looping.Alarm4"
+	LoopingAlarm5  Audio = "ms-winsoundevent:Notification.Looping.Alarm5"
+	LoopingAlarm6  Audio = "ms-winsoundevent:Notification.Looping.Alarm6"
+	LoopingAlarm7  Audio = "ms-winsoundevent:Notification.Looping.Alarm7"
+	LoopingAlarm8  Audio = "ms-winsoundevent:Notification.Looping.Alarm8"
+	LoopingAlarm9  Audio = "ms-winsoundevent:Notification.Looping.Alarm9"
+	LoopingAlarm10 Audio = "ms-winsoundevent:Notification.Looping.Alarm10"
+	LoopingCall    Audio = "ms-winsoundevent:Notification.Looping.Call"
+	LoopingCall2   Audio = "ms-winsoundevent:Notification.Looping.Call2"
+	LoopingCall3   Audio = "ms-winsoundevent:Notification.Looping.Call3"
+	LoopingCall4   Audio = "ms-winsoundevent:Notification.Looping.Call4"
+	LoopingCall5   Audio = "ms-winsoundevent:Notification.Looping.Call5"
+	LoopingCall6   Audio = "ms-winsoundevent:Notification.Looping.Call6"
+	LoopingCall7   Audio = "ms-winsoundevent:Notification.Looping.Call7"
+	LoopingCall8   Audio = "ms-winsoundevent:Notification.Looping.Call8"
+	LoopingCall9   Audio = "ms-winsoundevent:Notification.Looping.Call9"
+	LoopingCall10  Audio = "ms-winsoundevent:Notification.Looping.Call10"
+	Silent         Audio = "silent"
+
+	Short Duration = "short"
+	Long  Duration = "long"
+
+	ActionProtocol = "protocol"
 )
 
-type toastDuration string
-
-const (
-	Short toastDuration = "short"
-	Long                = "long"
-)
+var validAudio = []Audio{Default,
+	IM,
+	Mail,
+	Reminder,
+	SMS,
+	LoopingAlarm,
+	LoopingAlarm2,
+	LoopingAlarm3,
+	LoopingAlarm4,
+	LoopingAlarm5,
+	LoopingAlarm6,
+	LoopingAlarm7,
+	LoopingAlarm8,
+	LoopingAlarm9,
+	LoopingAlarm10,
+	LoopingCall,
+	LoopingCall2,
+	LoopingCall3,
+	LoopingCall4,
+	LoopingCall5,
+	LoopingCall6,
+	LoopingCall7,
+	LoopingCall8,
+	LoopingCall9,
+	LoopingCall10,
+	Silent,
+}
 
 func init() {
-	toastTemplate = template.New("toast")
-	toastTemplate.Parse(`
+	tmpl = template.New("toast")
+	tmpl.Parse(`
 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
 [Windows.UI.Notifications.ToastNotification, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
 [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
@@ -168,13 +185,13 @@ type Notification struct {
 	Actions []Action
 
 	// The audio to play when displaying the toast
-	Audio toastAudio
+	Audio Audio
 
 	// Whether to loop the audio (default false)
 	Loop bool
 
 	// How long the toast should show up for (short/long)
-	Duration toastDuration
+	Duration Duration
 }
 
 // Action
@@ -195,7 +212,7 @@ type Action struct {
 
 func (n *Notification) applyDefaults() {
 	if n.ActivationType == "" {
-		n.ActivationType = "protocol"
+		n.ActivationType = ActionProtocol
 	}
 	if n.Duration == "" {
 		n.Duration = Short
@@ -205,9 +222,9 @@ func (n *Notification) applyDefaults() {
 	}
 }
 
-func (n *Notification) buildXML() (string, error) {
+func (n *Notification) ToXML() (string, error) {
 	var out bytes.Buffer
-	err := toastTemplate.Execute(&out, n)
+	err := tmpl.Execute(&out, n)
 	if err != nil {
 		return "", err
 	}
@@ -235,122 +252,50 @@ func (n *Notification) buildXML() (string, error) {
 //     }
 func (n *Notification) Push() error {
 	n.applyDefaults()
-	xml, err := n.buildXML()
+	xml, err := n.ToXML()
 	if err != nil {
 		return err
 	}
-	return invokeTemporaryScript(xml)
+	return invoke(xml)
 }
 
-// Returns a toastAudio given a user-provided input (useful for cli apps).
-//
-// If the "name" doesn't match, then the default toastAudio is returned, along with ErrorInvalidAudio.
-//
-// The following names are valid;
-//   - default
-//   - im
-//   - mail
-//   - reminder
-//   - sms
-//   - loopingalarm
-//   - loopimgalarm[2-10]
-//   - loopingcall
-//   - loopingcall[2-10]
-//   - silent
-//
-// Handle the error appropriately according to how your app should work.
-func Audio(name string) (toastAudio, error) {
-	switch strings.ToLower(name) {
-	case "default":
-		return Default, nil
-	case "im":
-		return IM, nil
-	case "mail":
-		return Mail, nil
-	case "reminder":
-		return Reminder, nil
-	case "sms":
-		return SMS, nil
-	case "loopingalarm":
-		return LoopingAlarm, nil
-	case "loopingalarm2":
-		return LoopingAlarm2, nil
-	case "loopingalarm3":
-		return LoopingAlarm3, nil
-	case "loopingalarm4":
-		return LoopingAlarm4, nil
-	case "loopingalarm5":
-		return LoopingAlarm5, nil
-	case "loopingalarm6":
-		return LoopingAlarm6, nil
-	case "loopingalarm7":
-		return LoopingAlarm7, nil
-	case "loopingalarm8":
-		return LoopingAlarm8, nil
-	case "loopingalarm9":
-		return LoopingAlarm9, nil
-	case "loopingalarm10":
-		return LoopingAlarm10, nil
-	case "loopingcall":
-		return LoopingCall, nil
-	case "loopingcall2":
-		return LoopingCall2, nil
-	case "loopingcall3":
-		return LoopingCall3, nil
-	case "loopingcall4":
-		return LoopingCall4, nil
-	case "loopingcall5":
-		return LoopingCall5, nil
-	case "loopingcall6":
-		return LoopingCall6, nil
-	case "loopingcall7":
-		return LoopingCall7, nil
-	case "loopingcall8":
-		return LoopingCall8, nil
-	case "loopingcall9":
-		return LoopingCall9, nil
-	case "loopingcall10":
-		return LoopingCall10, nil
-	case "silent":
-		return Silent, nil
-	default:
-		return Default, ErrorInvalidAudio
+// Checks if the str provided is a valid Audio constant from this package. If not it will return the standard Audio
+// constant you should use and false. This is mainly useful for checking user input.
+func ToAudio(str string) (Audio, bool) {
+	a := Audio(str)
+	for _, x := range validAudio {
+		if x == a {
+			return x, true
+		}
 	}
+	return Default, false
 }
 
-// Returns a toastDuration given a user-provided input (useful for cli apps).
-//
-// The default duration is short. If the "name" doesn't match, then the default toastDuration is returned,
-// along with ErrorInvalidDuration. Most of the time "short" is the most appropriate for a toast notification,
-// and Microsoft recommend not using "long", but it can be useful for important dialogs or looping sound toasts.
-//
-// The following names are valid;
-//   - short
-//   - long
-//
-// Handle the error appropriately according to how your app should work.
-func Duration(name string) (toastDuration, error) {
-	switch strings.ToLower(name) {
-	case "short":
-		return Short, nil
-	case "long":
-		return Long, nil
-	default:
-		return Short, ErrorInvalidDuration
+// Checks if the str provided is a valid Duration constant from this package. If not it will return the standard Duration
+// constant you should use and false. This is mainly useful for checking user input.
+func ToDuration(str string) (Duration, bool) {
+	d := Duration(str)
+	if d != Short && d != Long {
+		return Short, false
 	}
+	return d, true
 }
 
-func invokeTemporaryScript(content string) error {
-	id, _ := uuid.NewV4()
-	file := filepath.Join(os.TempDir(), id.String()+".ps1")
-	defer os.Remove(file)
-	bomUtf8 := []byte{0xEF, 0xBB, 0xBF}
-	out := append(bomUtf8, []byte(content)...)
-	err := ioutil.WriteFile(file, out, 0600)
+// Invokes the PowerShell command for triggering a notification with a file. Important to note that the ".ps1" extension
+// is required in order to get this to work correctly; you will receive error code 4294770688 otherwise.
+// The UTF-8 BOM bytes are added in order for foreign languages to work correctly.
+func invoke(content string) error {
+	file, err := ioutil.TempFile(os.TempDir(), "toast-*.ps1")
 	if err != nil {
 		return err
 	}
-	cmd := exec.Command("PowerShell", "-ExecutionPolicy", "Bypass", "-File", file)
+	defer os.Remove(file.Name())
+	if _, err := file.Write(append([]byte{0xEF, 0xBB, 0xBF}, []byte(content)...)); err != nil {
+		file.Close()
+		return err
+	}
+	file.Close()
+	cmd := exec.Command("PowerShell", "-ExecutionPolicy", "Bypass", "-File", file.Name())
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	if err = cmd.Run(); err != nil {
 		return err

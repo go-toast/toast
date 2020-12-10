@@ -1,6 +1,6 @@
 # Toast
 
-A go package for Windows 10 toast notifications.
+A dependency free go package for Windows 10 toast notifications (via PowerShell).
 
 As seen in [jacobmarshall/pokevision-cli](https://github.com/jacobmarshall/pokevision-cli).
 
@@ -33,7 +33,7 @@ package main
 import (
     "log"
 
-    "gopkg.in/toast.v1"
+    "github.com/go-toast/toast"
 )
 
 func main() {
