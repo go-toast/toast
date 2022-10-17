@@ -2,16 +2,15 @@ package toast
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
-	"io/ioutil"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"text/template"
 
-	"github.com/nu7hatch/gouuid"
 	"syscall"
+
+	"golang.org/x/text/encoding/unicode"
 )
 
 var toastTemplate *template.Template
@@ -62,18 +61,18 @@ const (
 func init() {
 	toastTemplate = template.New("toast")
 	toastTemplate.Parse(`
-[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
-[Windows.UI.Notifications.ToastNotification, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
-[Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
+[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null;
+[Windows.UI.Notifications.ToastNotification, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null;
+[Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null;
 
-$APP_ID = '{{if .AppID}}{{.AppID}}{{else}}Windows App{{end}}'
+$APP_ID = "{{if .AppID}}{{.AppID}}{{else}}Windows App{{end}}";
 
-$template = @"
-<toast activationType="{{.ActivationType}}" launch="{{.ActivationArguments}}" duration="{{.Duration}}">
+$template = "
+<toast activationType=""{{.ActivationType}}"" launch=""{{.ActivationArguments}}"" duration=""{{.Duration}}"">
     <visual>
-        <binding template="ToastGeneric">
+        <binding template=""ToastGeneric"">
             {{if .Icon}}
-            <image placement="appLogoOverride" src="{{.Icon}}" />
+            <image placement=""appLogoOverride"" src=""{{.Icon}}"" />
             {{end}}
             {{if .Title}}
             <text><![CDATA[{{.Title}}]]></text>
@@ -84,24 +83,24 @@ $template = @"
         </binding>
     </visual>
     {{if ne .Audio "silent"}}
-	<audio src="{{.Audio}}" loop="{{.Loop}}" />
+	<audio src=""{{.Audio}}"" loop=""{{.Loop}}"" />
 	{{else}}
-	<audio silent="true" />
+	<audio silent=""true"" />
 	{{end}}
     {{if .Actions}}
     <actions>
         {{range .Actions}}
-        <action activationType="{{.Type}}" content="{{.Label}}" arguments="{{.Arguments}}" />
+        <action activationType=""{{.Type}}"" content=""{{.Label}}"" arguments=""{{.Arguments}}"" />
         {{end}}
     </actions>
     {{end}}
 </toast>
-"@
+";
 
-$xml = New-Object Windows.Data.Xml.Dom.XmlDocument
-$xml.LoadXml($template)
-$toast = New-Object Windows.UI.Notifications.ToastNotification $xml
-[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($APP_ID).Show($toast)
+$xml = New-Object Windows.Data.Xml.Dom.XmlDocument;
+$xml.LoadXml($template);
+$toast = New-Object Windows.UI.Notifications.ToastNotification $xml;
+[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($APP_ID).Show($toast);
     `)
 }
 
@@ -341,18 +340,18 @@ func Duration(name string) (toastDuration, error) {
 }
 
 func invokeTemporaryScript(content string) error {
-	id, _ := uuid.NewV4()
-	file := filepath.Join(os.TempDir(), id.String()+".ps1")
-	defer os.Remove(file)
-	bomUtf8 := []byte{0xEF, 0xBB, 0xBF}
-	out := append(bomUtf8, []byte(content)...)
-	err := ioutil.WriteFile(file, out, 0600)
+	content = strings.TrimSpace(strings.ReplaceAll(content, "\n", ""))
+
+	encoder := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewEncoder()
+	utf16, err := encoder.String(content)
 	if err != nil {
 		return err
 	}
-	cmd := exec.Command("PowerShell", "-ExecutionPolicy", "Bypass", "-File", file)
+	encContent := base64.StdEncoding.EncodeToString([]byte(utf16))
+
+	cmd := exec.Command("PowerShell", "-EncodedCommand", encContent)
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	if err = cmd.Run(); err != nil {
+	if err := cmd.Run(); err != nil {
 		return err
 	}
 	return nil
