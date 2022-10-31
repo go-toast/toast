@@ -59,3 +59,25 @@ func main() {
 ![Toast](./screenshot-toast.png)
 
 ![Action centre](./screenshot-action-centre.png)
+
+
+## Troubleshooting
+
+As of the 2019 Fall Creator's Update, Windows added a requirement that a 
+notification AppIDs [must match the AppId of an application in the start menu](https://stackoverflow.com/questions/46814858/toast-notification-not-working-on-windows-fall-creators-update). 
+
+To find the AppIds for Start Menu Applications, open up PowerShell and run:
+
+```cmd 
+Get-StartApps
+```
+While you can use any pinned application's AppID, it's probably 
+not a bad idea to build your code into an executable, pin that to the start menu, 
+and use its AppId. Note - since the AppId can belong to any application in the system, you can continue to use Go to run your code, instead of rebuilding and running the executable every time.
+
+If your notifications are still not showing up, make sure the notification
+settings are set properly for the AppId you used. You can configure 
+this behavior from the `Notifications & Action Settings` menu in Windows. 
+If your application is not showing up, you may need to send a push notification once for it to appear on the list.
+
+Finally, make sure your system notifications are correctly configured to appear. Refer to [this guide](https://www.guidingtech.com/fixes-for-notifications-banners-not-showing-windows-10/) for some tips and tricks.
