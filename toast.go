@@ -3,15 +3,15 @@ package toast
 import (
 	"bytes"
 	"errors"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"text/template"
 
-	"github.com/nu7hatch/gouuid"
 	"syscall"
+
+	uuid "github.com/nu7hatch/gouuid"
 )
 
 var toastTemplate *template.Template
@@ -25,38 +25,38 @@ type toastAudio string
 
 const (
 	Default        toastAudio = "ms-winsoundevent:Notification.Default"
-	IM                        = "ms-winsoundevent:Notification.IM"
-	Mail                      = "ms-winsoundevent:Notification.Mail"
-	Reminder                  = "ms-winsoundevent:Notification.Reminder"
-	SMS                       = "ms-winsoundevent:Notification.SMS"
-	LoopingAlarm              = "ms-winsoundevent:Notification.Looping.Alarm"
-	LoopingAlarm2             = "ms-winsoundevent:Notification.Looping.Alarm2"
-	LoopingAlarm3             = "ms-winsoundevent:Notification.Looping.Alarm3"
-	LoopingAlarm4             = "ms-winsoundevent:Notification.Looping.Alarm4"
-	LoopingAlarm5             = "ms-winsoundevent:Notification.Looping.Alarm5"
-	LoopingAlarm6             = "ms-winsoundevent:Notification.Looping.Alarm6"
-	LoopingAlarm7             = "ms-winsoundevent:Notification.Looping.Alarm7"
-	LoopingAlarm8             = "ms-winsoundevent:Notification.Looping.Alarm8"
-	LoopingAlarm9             = "ms-winsoundevent:Notification.Looping.Alarm9"
-	LoopingAlarm10            = "ms-winsoundevent:Notification.Looping.Alarm10"
-	LoopingCall               = "ms-winsoundevent:Notification.Looping.Call"
-	LoopingCall2              = "ms-winsoundevent:Notification.Looping.Call2"
-	LoopingCall3              = "ms-winsoundevent:Notification.Looping.Call3"
-	LoopingCall4              = "ms-winsoundevent:Notification.Looping.Call4"
-	LoopingCall5              = "ms-winsoundevent:Notification.Looping.Call5"
-	LoopingCall6              = "ms-winsoundevent:Notification.Looping.Call6"
-	LoopingCall7              = "ms-winsoundevent:Notification.Looping.Call7"
-	LoopingCall8              = "ms-winsoundevent:Notification.Looping.Call8"
-	LoopingCall9              = "ms-winsoundevent:Notification.Looping.Call9"
-	LoopingCall10             = "ms-winsoundevent:Notification.Looping.Call10"
-	Silent                    = "silent"
+	IM             toastAudio = "ms-winsoundevent:Notification.IM"
+	Mail           toastAudio = "ms-winsoundevent:Notification.Mail"
+	Reminder       toastAudio = "ms-winsoundevent:Notification.Reminder"
+	SMS            toastAudio = "ms-winsoundevent:Notification.SMS"
+	LoopingAlarm   toastAudio = "ms-winsoundevent:Notification.Looping.Alarm"
+	LoopingAlarm2  toastAudio = "ms-winsoundevent:Notification.Looping.Alarm2"
+	LoopingAlarm3  toastAudio = "ms-winsoundevent:Notification.Looping.Alarm3"
+	LoopingAlarm4  toastAudio = "ms-winsoundevent:Notification.Looping.Alarm4"
+	LoopingAlarm5  toastAudio = "ms-winsoundevent:Notification.Looping.Alarm5"
+	LoopingAlarm6  toastAudio = "ms-winsoundevent:Notification.Looping.Alarm6"
+	LoopingAlarm7  toastAudio = "ms-winsoundevent:Notification.Looping.Alarm7"
+	LoopingAlarm8  toastAudio = "ms-winsoundevent:Notification.Looping.Alarm8"
+	LoopingAlarm9  toastAudio = "ms-winsoundevent:Notification.Looping.Alarm9"
+	LoopingAlarm10 toastAudio = "ms-winsoundevent:Notification.Looping.Alarm10"
+	LoopingCall    toastAudio = "ms-winsoundevent:Notification.Looping.Call"
+	LoopingCall2   toastAudio = "ms-winsoundevent:Notification.Looping.Call2"
+	LoopingCall3   toastAudio = "ms-winsoundevent:Notification.Looping.Call3"
+	LoopingCall4   toastAudio = "ms-winsoundevent:Notification.Looping.Call4"
+	LoopingCall5   toastAudio = "ms-winsoundevent:Notification.Looping.Call5"
+	LoopingCall6   toastAudio = "ms-winsoundevent:Notification.Looping.Call6"
+	LoopingCall7   toastAudio = "ms-winsoundevent:Notification.Looping.Call7"
+	LoopingCall8   toastAudio = "ms-winsoundevent:Notification.Looping.Call8"
+	LoopingCall9   toastAudio = "ms-winsoundevent:Notification.Looping.Call9"
+	LoopingCall10  toastAudio = "ms-winsoundevent:Notification.Looping.Call10"
+	Silent         toastAudio = "silent"
 )
 
 type toastDuration string
 
 const (
 	Short toastDuration = "short"
-	Long                = "long"
+	Long  toastDuration = "long"
 )
 
 func init() {
@@ -133,16 +133,16 @@ $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
 // The following would show a notification to the user letting them know they received an email, and opens
 // gmail.com when they click the notification. It also makes the Windows 10 "mail" sound effect.
 //
-//     toast := toast.Notification{
-//         AppID:               "Google Mail",
-//         Title:               email.Subject,
-//         Message:             email.Preview,
-//         Icon:                "C:/Program Files/Google Mail/icons/logo.png",
-//         ActivationArguments: "https://gmail.com",
-//         Audio:               toast.Mail,
-//     }
+//	toast := toast.Notification{
+//	    AppID:               "Google Mail",
+//	    Title:               email.Subject,
+//	    Message:             email.Preview,
+//	    Icon:                "C:/Program Files/Google Mail/icons/logo.png",
+//	    ActivationArguments: "https://gmail.com",
+//	    Audio:               toast.Mail,
+//	}
 //
-//     err := toast.Push()
+//	err := toast.Push()
 type Notification struct {
 	// The name of your app. This value shows up in Windows 10's Action Centre, so make it
 	// something readable for your users. It can contain spaces, however special characters
@@ -186,7 +186,7 @@ type Notification struct {
 // user's choice. Examples of protocol type action buttons include: "bingmaps:?q=sushi" to open up Windows 10's
 // maps app with a pre-populated search field set to "sushi".
 //
-//     toast.Action{"protocol", "Open Maps", "bingmaps:?q=sushi"}
+//	toast.Action{"protocol", "Open Maps", "bingmaps:?q=sushi"}
 type Action struct {
 	Type      string
 	Label     string
@@ -219,20 +219,20 @@ func (n *Notification) buildXML() (string, error) {
 // Note: Running the PowerShell script is by far the slowest process here, and can take a few
 // seconds in some cases.
 //
-//     notification := toast.Notification{
-//         AppID: "Example App",
-//         Title: "My notification",
-//         Message: "Some message about how important something is...",
-//         Icon: "go.png",
-//         Actions: []toast.Action{
-//             {"protocol", "I'm a button", ""},
-//             {"protocol", "Me too!", ""},
-//         },
-//     }
-//     err := notification.Push()
-//     if err != nil {
-//         log.Fatalln(err)
-//     }
+//	notification := toast.Notification{
+//	    AppID: "Example App",
+//	    Title: "My notification",
+//	    Message: "Some message about how important something is...",
+//	    Icon: "go.png",
+//	    Actions: []toast.Action{
+//	        {"protocol", "I'm a button", ""},
+//	        {"protocol", "Me too!", ""},
+//	    },
+//	}
+//	err := notification.Push()
+//	if err != nil {
+//	    log.Fatalln(err)
+//	}
 func (n *Notification) Push() error {
 	n.applyDefaults()
 	xml, err := n.buildXML()
@@ -346,7 +346,7 @@ func invokeTemporaryScript(content string) error {
 	defer os.Remove(file)
 	bomUtf8 := []byte{0xEF, 0xBB, 0xBF}
 	out := append(bomUtf8, []byte(content)...)
-	err := ioutil.WriteFile(file, out, 0600)
+	err := os.WriteFile(file, out, 0600)
 	if err != nil {
 		return err
 	}
