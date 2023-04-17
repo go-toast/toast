@@ -1,0 +1,27 @@
+name: actionlint
+
+# See: https://github.com/rhysd/actionlint
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  actionlint:
+    runs-on: windows-latest
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Install actionlint
+        run: go install github.com/rhysd/actionlint/cmd/actionlint@latest
+
+      - name: Run actionlint
+        run: actionlint -color

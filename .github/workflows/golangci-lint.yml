@@ -1,0 +1,34 @@
+name: golangci-lint
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+
+
+jobs:
+  golangci-lint:
+    runs-on: windows-latest
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          skip-pkg-cache: true
+      
+      # Re-run golangci-lint as a workaround for https://github.com/golangci/golangci-lint-action/issues/362
+      # to ensure that errors are reported.
+      - name: Run golangci-lint again
+        if: ${{ always() }}
+        run: golangci-lint run
+      
+      - name: govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest; govulncheck ./...
